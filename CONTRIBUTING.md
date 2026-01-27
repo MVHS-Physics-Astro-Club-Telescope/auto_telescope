@@ -6,7 +6,7 @@ cd auto_telescope --> directs to telescope project
 
 git status --> shows whether your on main branch or not
 
-git checkout -b (name) --> creates and switches to a new branch, only do this one time
+git checkout -b (name) --> creates and switches to a new branch
 
 git pull --> pulls main branch changes from github
 
