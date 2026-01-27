@@ -1,1 +1,1 @@
-# auto_telescope
+# Autonomous Tracking and Capturing Telescope
