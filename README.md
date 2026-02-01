@@ -2,27 +2,35 @@
 
 # Overview
 
-This project is focused on creating a functional telescope by hand that can be adjusted to see celestial bodies and stars far away from our planet. We are limiting ourselves to utilize actual parts rather than prebuilt-telescopes. There are three subsections to the project: Electrical, Mechanical, & Software; Note that Software will be utilizing two coding languages (Java & Python). 
+This project focuses on designing and building a fully autonomous telescope from individual components, rather than using a prebuilt system. The telescope is capable of automatically focusing, moving, and tracking celestial bodies with minimal human input.
 
-The telescope should autonomously focusing, moving, and tracking on celestial bodies and objects within range and will need minimal human assistance. For this, we will need proper communication across all 3 subsections in order to make sure that the telescope can accurately move based on the commands dictated by the sensors.
+The system is divided into three major subsystems:
+    Mechanical – Physical structure, mounts, and motion mechanisms
+    Electrical – Motors, sensors, and wiring
+    Software – Control logic, communication, and automation
+    The software stack uses Java (host-side control) and Python (Raspberry Pi integration). Reliable communication across all subsystems is essential to ensure accurate tracking and movement.
 
 # Architecture
 
-Data Flow and Control Flow --> Shared file dictates the flow of these things alongside the overall communication between the Raspberry Pi and the host computer
+The telescope operates using a host computer ↔ Raspberry Pi architecture:
+    - The host computer performs high-level calculations such as positioning, tracking adjustments, and focus control.
+    - The Raspberry Pi interfaces directly with motors and sensors.
+    - A shared communication layer defines how data and commands are exchanged between the host and the Pi.
+
+This architecture allows decision-making to remain centralized while hardware control stays close to the electronics.
 
 # Repository Structure
 
-Docs --> Structured documentation on each change/merge in the main branch (more detailed than this file)
-Host --> High level computations (i.e. how much to focus, move, or overall adjust the telescope is done in this file)
-Pi --> Software-Electronic integration, creating functionality between the electrical components and software commands to create truly autonomous movement based on Host file decision making
-Shared --> How data is sent from the host computer to the Pi, communicator between both the computer and the Pi.
+Docs/     → Documentation for changes, merges, and design decisions  
+Host/     → High-level control logic (movement, tracking, focus decisions)  
+Pi/       → Hardware integration and motor/sensor control  
+Shared/   → Communication protocol between Host and Raspberry Pi  
 
 # Setup
 
-How to start using or contributing:
-
 Prerequisites: 
 
-Java JDK package
-Python 3.11
-Working OS
+- Java JDK
+- Python 3.11
+- Supported operating system (macOS, Linux, or Windows)
+- Raspberry Pi (for hardware deployment)
