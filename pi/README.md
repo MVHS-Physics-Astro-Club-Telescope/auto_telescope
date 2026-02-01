@@ -15,4 +15,55 @@ The Pi subsystem handles:
     - Sending feedback/state data back to the Host
 
 # Directory Structure
-//TODO//
+
+main.py: 
+    - System entry point
+    - Starts the Pi program
+    - Initializes hardware
+    - Runs the main control loop
+    - Connects comms → control → hardware
+
+config/:
+Contains values that never change at runtime:
+    - GPIO pins
+    - Motor IDs
+    - Angle limits
+    - Speed limits
+    - Loop rates
+
+comms/:
+Contains values that never change at runtime:
+    - GPIO pins
+    - Motor IDs
+    - Angle limits
+    - Speed limits
+    - Loop rates
+
+control/:
+    - The execution brain of the Pi
+    - Translates commands → actions
+    - Enforces safety limits
+    - Coordinates multiple motors
+
+hardware/:
+This is the only place that touches pins.
+    - Lowest-level hardware access
+    - Motor drivers
+    - Sensors
+    - GPIO setup
+
+state/:
+    - Tracks current system status
+    - Telescope position
+    - Motion state
+    - Error conditions
+
+    Used for:
+        - Feedback to Host
+        - Safety checks
+
+utils/:
+Reusable helpers:
+    - Logging
+    - Timing utilities
+    - Debug helpers
