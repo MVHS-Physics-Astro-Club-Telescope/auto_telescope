@@ -22,4 +22,37 @@ Do not hardcode Pi-specific values
 Changes here often affect system-wide behavior
 
 # Directory Structure
-//TODO//
+main.py
+    Initializes all modules
+    Launches threads for UI, tracking loop, autofocus, and communication
+    Coordinates safe shutdown and error handling
+
+config/
+    Holds constants and tuning parameters, both general and UI-specific
+
+ui/
+    Handles manual/auto input
+    Updates the display in real-time
+    Reads input from keyboard or mouse
+
+control/
+    Core algorithms for tracking and focus
+    Computes corrections based on Pi state and camera feedback
+    Works entirely hardware-agnostic
+
+comms/
+    Interfaces with Pi via Shared definitions
+    Ensures all commands and feedback are valid
+    Acts as the “messenger” between Host and Pi
+
+state/
+    Keeps full telescope state
+    Logs movements, commands, and errors for debugging
+    
+simulation/
+    Allows testing of control and focus algorithms without connecting the Pi
+    Provides mock targets and camera frames
+    
+utils/
+    General-purpose helpers
+    Logging, math, threading utilities
