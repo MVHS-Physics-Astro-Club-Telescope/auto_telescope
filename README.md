@@ -21,7 +21,6 @@ This architecture allows decision-making to remain centralized while hardware co
 
 # Repository Structure
 
-Docs/     → Documentation for changes, merges, and design decisions  
 Host/     → High-level control logic (movement, tracking, focus decisions)  
 Pi/       → Hardware integration and motor/sensor control  
 Shared/   → Communication protocol between Host and Raspberry Pi  
