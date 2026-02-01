@@ -1,0 +1,1 @@
+# Receives telescope state and camera data from Pi

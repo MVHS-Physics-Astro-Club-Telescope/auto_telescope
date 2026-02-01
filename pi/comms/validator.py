@@ -1,0 +1,1 @@
+# Validates message structure and command parameters

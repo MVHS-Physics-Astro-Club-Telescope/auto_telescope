@@ -1,0 +1,1 @@
+# GPIO pin mappings for motors, sensors, and peripherals

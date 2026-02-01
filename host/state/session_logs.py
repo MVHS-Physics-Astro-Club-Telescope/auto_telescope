@@ -1,0 +1,1 @@
+# Keeps runtime logs of commands, positions, and errors

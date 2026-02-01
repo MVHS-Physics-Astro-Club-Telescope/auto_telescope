@@ -1,0 +1,1 @@
+# Fixed constants like limits, loop rates, and speed thresholds

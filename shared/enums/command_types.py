@@ -1,0 +1,1 @@
+# Enum of command types (MOVE, FOCUS, STOP)

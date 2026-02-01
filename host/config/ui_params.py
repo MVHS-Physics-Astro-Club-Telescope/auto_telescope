@@ -1,0 +1,1 @@
+ # UI-related constants (window size, update rates)

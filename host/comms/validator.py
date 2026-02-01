@@ -1,0 +1,1 @@
+ # Validates incoming/outgoing messages using Shared definitions
