@@ -1,0 +1,1 @@
+# Functions for updating telescope state, logs, and status on the UI

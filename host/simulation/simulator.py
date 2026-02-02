@@ -1,0 +1,1 @@
+# Simulated telescope for testing algorithms without Pi

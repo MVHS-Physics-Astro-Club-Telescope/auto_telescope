@@ -1,0 +1,1 @@
+# Tracks system errors and abnormal conditions

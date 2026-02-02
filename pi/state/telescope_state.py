@@ -1,0 +1,1 @@
+# Tracks current telescope positions, motion state, and focus

@@ -1,0 +1,1 @@
+# Reads sensors like encoders, limit switches, and camera triggers

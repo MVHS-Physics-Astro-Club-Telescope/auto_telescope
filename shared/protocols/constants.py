@@ -1,0 +1,1 @@
+ # Protocol constants (port, max size, etc.)

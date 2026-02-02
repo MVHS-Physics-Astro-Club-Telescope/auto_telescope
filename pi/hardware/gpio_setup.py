@@ -1,0 +1,1 @@
+# Initializes GPIO pins and hardware configurations

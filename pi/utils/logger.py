@@ -1,0 +1,1 @@
+# Logging utility for messages, errors, and debugging

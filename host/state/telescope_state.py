@@ -1,0 +1,1 @@
+# Maintains full state of telescope (position, focus, errors)

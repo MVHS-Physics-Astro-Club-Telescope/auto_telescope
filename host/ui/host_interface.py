@@ -1,0 +1,1 @@
+# Main UI logic, handles manual/auto mode toggling
