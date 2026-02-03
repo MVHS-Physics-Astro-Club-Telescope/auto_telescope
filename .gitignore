@@ -21,3 +21,6 @@ venv/
 # Build artifacts or compiled code
 build/
 dist/
+
+# Qudo extension
+.qodo/
