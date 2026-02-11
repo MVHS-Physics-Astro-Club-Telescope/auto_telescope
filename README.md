@@ -32,4 +32,4 @@ Prerequisites:
 - Java JDK
 - Python 3.11
 - Supported operating system (macOS, Linux, or Windows)
-- Raspberry Pi (for hardware deployment)
+- Raspberry Pi (for hardware deployment) hi
