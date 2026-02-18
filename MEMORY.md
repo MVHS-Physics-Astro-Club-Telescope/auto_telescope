@@ -18,16 +18,17 @@
 - Camera: TBD, will be used for autofocus and plate solving
 
 ## Patterns & Conventions
-- Tests mirror source structure: tests/host/, tests/pi/, tests/shared/
+- Tests mirror source structure: tests/host/, tests/pi/, tests/shared/, tests/integration/
+- Integration tests use IntegrationHarness (real loopback TCP, no mocked sockets)
+- wait_for_condition() polling helper replaces fragile time.sleep() in async tests
 - PYTHONPATH must include repo root for imports to work
 - Case-insensitive celestial object name handling with whitespace trimming
 - Three resolution strategies: solar system DB -> JPL Horizons -> SIMBAD (fallback chain)
 - Thread-safe state management using threading.Lock in pi/state/
 
 ## Implementation Status
-- **Complete**: shared/ (11 files, 69 tests), pi/ (17 files, 86 tests), desired_position.py (8 tests)
-- **Stubs only**: ~18 remaining host/ files
-- **Total tests**: 163 passing
+- **Complete**: shared/ (11 files, 69 tests), pi/ (17 files, 86 tests), host/ (18 files, 148 tests), integration (6 files, 25 tests)
+- **Total tests**: 328 passing
 
 ## Progress Tracking System
 - docs/PROGRESS.md: Primary session-persistent progress tracker (source of truth)
@@ -38,8 +39,6 @@
 - Auto-save: Runs after every commit and at session end (codified in CLAUDE.md)
 
 ## Known Issues
-- README.md mentions Java but project is pure Python — needs updating
-- docs/architecture.md exists but is empty
 - RPi.GPIO / gpiozero not in requirements.txt (only needed on actual Pi)
 - Consider adding ruff, mypy to requirements-dev.txt
 

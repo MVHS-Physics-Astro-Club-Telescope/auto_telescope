@@ -63,9 +63,9 @@
 - [x] tests/host/ (16 test files, 148 tests)
 
 ### Integration & Polish
-- [ ] End-to-end host↔pi communication tests
-- [ ] Update README.md (remove Java references)
-- [ ] Fill docs/architecture.md
+- [x] End-to-end host↔pi communication tests (PR #10, 25 tests)
+- [x] Update README.md (remove Java references, add setup/run instructions)
+- [x] Fill docs/architecture.md (system overview, layers, flows, threading, testing)
 - [ ] Add ruff/mypy to dev dependencies
 
 ---
@@ -77,4 +77,5 @@
 | shared/ | 69 | Passing |
 | pi/ | 86 | Passing |
 | host/ | 148 | Passing |
-| **Total** | **303** | **All passing** |
+| integration/ | 25 | Passing |
+| **Total** | **328** | **All passing** |
