@@ -21,7 +21,7 @@ None currently.
 
 ## Notes
 - 328 tests passing (86 pi/ + 69 shared/ + 148 host/ + 25 integration/)
-- All on main branch — PRs #5, #6, #7, #8, #9, #10 merged
+- All on main branch — PRs #5, #6, #7, #8, #9, #10, #11 merged
 - Python 3.9 compat: use `Optional[X]`, `List[X]`, `Dict[K,V]`
 - Host is TCP server (Pi connects as client)
 - Simulation mode: `python3 -m host.main --simulate`

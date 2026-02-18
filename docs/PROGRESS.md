@@ -10,7 +10,7 @@
 **Last Updated**: 2026-02-18
 **Branch**: main
 **Tests**: 328 passing (86 pi/ + 69 shared/ + 148 host/ + 25 integration/)
-**Overall Progress**: 3 of 5 layers complete + integration tests
+**Overall Progress**: 3 of 5 layers complete + integration tests + docs
 
 ---
 
@@ -113,3 +113,5 @@ Nothing currently in progress.
   - PR #10, squash-merged to main
 - Updated README.md (removed Java references, added setup/run instructions, architecture diagram)
 - Filled docs/architecture.md (full system overview, layer details, communication flows, threading model, testing strategy)
+  - PR #11, squash-merged to main
+- Cleaned up merged branches (6 local + 6 remote deleted)
