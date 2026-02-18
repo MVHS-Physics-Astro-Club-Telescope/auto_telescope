@@ -9,12 +9,21 @@
 
 **Last Updated**: 2026-02-18
 **Branch**: main
-**Tests**: 303 passing (86 pi/ + 69 shared/ + 148 host/)
-**Overall Progress**: 3 of 5 layers complete
+**Tests**: 328 passing (86 pi/ + 69 shared/ + 148 host/ + 25 integration/)
+**Overall Progress**: 3 of 5 layers complete + integration tests
 
 ---
 
 ## Completed
+
+### Integration Tests (2026-02-18)
+- PR #10, merged to main
+- 6 files: conftest.py (IntegrationHarness) + 4 test modules (25 tests)
+- **test_command_flow** (10): move/focus/stop round-trips, sequential commands, status transitions, state report propagation
+- **test_state_reporting** (6): position/status/focus/error propagation from Pi to Host
+- **test_error_handling** (5): invalid commands, unknown types, receiver resilience, host-side validation rejection
+- **test_lifecycle** (4): connect/disconnect, Pi disconnect detection, thread leak verification
+- IntegrationHarness wires real Host Sender+Receiver against real Pi dispatch loop over loopback TCP
 
 ### host/ High-Level Control Layer (2026-02-18)
 - PR #9, merged to main
@@ -68,9 +77,7 @@ Nothing currently in progress.
 
 ## Next Up (Priority Order)
 
-1. **Integration testing** — End-to-end host↔pi communication tests
-2. **Documentation** — Update README.md (still references Java), fill docs/architecture.md
-3. **Dev tooling** — Add ruff, mypy to requirements-dev.txt
+1. **Dev tooling** — Add ruff, mypy to requirements-dev.txt
 
 ---
 
@@ -82,8 +89,6 @@ Nothing currently in progress.
 
 ## Known Issues
 
-- README.md mentions Java but project is pure Python — needs updating
-- docs/architecture.md exists but is empty
 - CI uses Python 3.9/3.10 — requirements.txt is minimal (astropy, astroquery, pytest)
 - RPi.GPIO / gpiozero not in requirements.txt (only needed on Pi hardware)
 - Consider adding ruff, mypy to requirements-dev.txt
@@ -102,3 +107,9 @@ Nothing currently in progress.
   - TCP server, CLI interface, tracking controller, PID, autofocus, simulator
   - 303 total tests passing across all layers
   - PR #9, squash-merged to main
+- Added 25 end-to-end integration tests (Host↔Pi over loopback TCP)
+  - IntegrationHarness wires real components, no mocked sockets
+  - 328 total tests passing across all layers
+  - PR #10, squash-merged to main
+- Updated README.md (removed Java references, added setup/run instructions, architecture diagram)
+- Filled docs/architecture.md (full system overview, layer details, communication flows, threading model, testing strategy)
