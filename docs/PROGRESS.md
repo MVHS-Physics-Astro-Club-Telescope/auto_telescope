@@ -8,7 +8,7 @@
 ## Current Status
 
 **Last Updated**: 2026-02-18
-**Branch**: feat/host-control-layer
+**Branch**: main
 **Tests**: 303 passing (86 pi/ + 69 shared/ + 148 host/)
 **Overall Progress**: 3 of 5 layers complete
 
@@ -17,7 +17,7 @@
 ## Completed
 
 ### host/ High-Level Control Layer (2026-02-18)
-- Branch: feat/host-control-layer, pending PR
+- PR #9, merged to main
 - 18 source files + 16 test files (148 tests, including 8 pre-existing)
 - **config/**: constants.py (network, PID, focus, observer defaults), ui_params.py
 - **utils/**: logger.py ([HOST] prefix), math_utils.py (Vincenty angular distance, normalize, clamp, alt_az_delta), threading_utils.py (StoppableThread, PeriodicTask)
@@ -101,3 +101,4 @@ Nothing currently in progress.
   - All 18 stubs replaced with full implementations
   - TCP server, CLI interface, tracking controller, PID, autofocus, simulator
   - 303 total tests passing across all layers
+  - PR #9, squash-merged to main
