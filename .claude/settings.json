@@ -1,0 +1,53 @@
+{
+  "permissions": {
+    "deny": [
+      "Bash(rm -rf *)",
+      "Bash(rm -rf /)",
+      "Bash(git push --force)",
+      "Bash(git push -f)",
+      "Bash(git push origin main)",
+      "Bash(git push --force-with-lease origin main)",
+      "Bash(git reset --hard)",
+      "Bash(git checkout .)",
+      "Bash(git clean -f)"
+    ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node -e \"let d='';process.stdin.on('data',c=>d+=c);process.stdin.on('end',()=>{try{const i=JSON.parse(d);const cmd=i.tool_input?.command||'';if(/git push.*main|git push -f|git push --force/.test(cmd)){process.stderr.write('[BLOCKED] No direct push to main. Use a feature branch and PR.');process.exit(2)}}catch{}})\"",
+            "description": "Block direct pushes to main and force pushes"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node -e \"let d='';process.stdin.on('data',c=>d+=c);process.stdin.on('end',()=>{try{const i=JSON.parse(d);const f=i.tool_input?.file_path||'';if(f.includes('pi/hardware/')||f.includes('pi/config/pins')){process.stderr.write('[WARNING] Hardware file modified: '+f+'. Verify GPIO safety and cleanup.')}}catch{}})\"",
+            "description": "Warn when hardware-critical files are modified"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo '[Session checkpoint] Remember to update scratchpad.md and MEMORY.md if needed'",
+            "description": "Remind to update working memory on session end"
+          }
+        ]
+      }
+    ]
+  }
+}
