@@ -1,44 +1,29 @@
 # Scratchpad
 
 ## Current Task
-Shared/ protocol layer implementation — COMPLETE
+None — between tasks. Progress tracking system just set up.
 
 ## Status
-- [x] Repo scan and analysis complete
-- [x] CLAUDE.md created (tailored to actual repo structure)
-- [x] MEMORY.md created (captures current state and decisions)
-- [x] scratchpad.md created (this file)
-- [x] .claude/settings.json created (hooks, permissions)
-- [x] Slash commands created (/prime, /plan, /status, /commit, /review)
-- [x] Subagents created (hardware-researcher, code-reviewer, test-runner, docs-writer)
-- [x] shared/ protocol layer implemented (11 source files + 6 __init__.py + 1 test file = 18 files)
-
-## Completed: shared/ Protocol Layer (2026-02-18)
-- 6x `__init__.py` (shared/, enums/, errors/, commands/, protocols/, state/)
-- `shared/enums/command_types.py` — CommandType str Enum (MOVE, FOCUS, STOP, STATUS_REQUEST)
-- `shared/enums/status_codes.py` — StatusCode str Enum (7 members)
-- `shared/errors/error_codes.py` — ErrorCode IntEnum (22 codes) + descriptions dict
-- `shared/protocols/constants.py` — All magic numbers (port, framing, ranges, timeouts)
-- `shared/commands/move_command.py` — MoveCommand dataclass with to_dict/from_dict
-- `shared/commands/focus_command.py` — FocusCommand dataclass + FOCUS_IN/FOCUS_OUT constants
-- `shared/commands/stop_command.py` — StopCommand dataclass (no timeout — stops are instant)
-- `shared/state/telescope_state.py` — TelescopeState dataclass
-- `shared/state/camera_state.py` — CameraState dataclass
-- `shared/protocols/message_validator.py` — validate_move/focus/stop/message + ValidationError
-- `shared/protocols/tcp_protocol.py` — 4-byte length-prefixed JSON framing + ProtocolError
-- `tests/shared/test_messages.py` — 69 tests, all passing
-- Also added tests/__init__.py and tests/shared/__init__.py
+- [x] Infrastructure: CLAUDE.md, MEMORY.md, scratchpad.md, commands, agents
+- [x] shared/ protocol layer (11 source files, 69 tests) — PR #6 merged
+- [x] pi/ hardware control layer (17 source files, 86 tests) — PR #7 merged
+- [x] Progress tracking system (docs/PROGRESS.md, task board, /save command)
+- [ ] host/ layer implementation (~18 stub files remaining)
+- [ ] Integration testing
+- [ ] Documentation updates
 
 ## Next Steps
-- [ ] Commit shared/ protocol layer on a feature branch
-- [ ] Begin pi/ hardware layer implementation (next logical layer)
-- [ ] Or begin host/ comms layer (depends on shared/ — now unblocked)
+1. host/comms/ — TCP server + message handling (server-side mirror of pi/comms/)
+2. host/state/ — Telescope state tracking, session logging
+3. host/control/ — Tracking loop, error correction, focus
+4. host/config/, host/utils/, host/ui/, host/simulation/, host/main.py
+5. Integration testing and documentation
 
 ## Blockers
 None currently.
 
 ## Notes
-- Python 3.9 compat: must use `Optional[X]`, `List[X]`, `Dict[K,V]` — not `X | None`, `list[x]`, `dict[k,v]`
-- ~44 remaining stub files in host/ and pi/
-- README.md still references Java — needs updating to Python-only
-- Consider adding ruff, mypy to requirements-dev.txt
+- 163 tests passing (86 pi/ + 69 shared/ + 8 host/)
+- Python 3.9 compat: use `Optional[X]`, `List[X]`, `Dict[K,V]`
+- README.md still references Java — needs updating
+- docs/PROGRESS.md is now the primary session-persistent progress tracker
