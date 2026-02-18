@@ -1,29 +1,28 @@
 # Scratchpad
 
 ## Current Task
-None — between tasks. Progress tracking system just set up.
+host/ layer implementation complete — ready for PR.
 
 ## Status
 - [x] Infrastructure: CLAUDE.md, MEMORY.md, scratchpad.md, commands, agents
 - [x] shared/ protocol layer (11 source files, 69 tests) — PR #6 merged
 - [x] pi/ hardware control layer (17 source files, 86 tests) — PR #7 merged
 - [x] Progress tracking system (docs/PROGRESS.md, task board, /save command)
-- [ ] host/ layer implementation (~18 stub files remaining)
+- [x] host/ layer implementation (18 source files, 148 tests) — on feat/host-control-layer
 - [ ] Integration testing
 - [ ] Documentation updates
 
 ## Next Steps
-1. host/comms/ — TCP server + message handling (server-side mirror of pi/comms/)
-2. host/state/ — Telescope state tracking, session logging
-3. host/control/ — Tracking loop, error correction, focus
-4. host/config/, host/utils/, host/ui/, host/simulation/, host/main.py
-5. Integration testing and documentation
+1. Create PR for feat/host-control-layer → main
+2. Integration testing — end-to-end host↔pi communication
+3. Update README.md (remove Java references)
+4. Fill docs/architecture.md
 
 ## Blockers
 None currently.
 
 ## Notes
-- 163 tests passing (86 pi/ + 69 shared/ + 8 host/)
+- 303 tests passing (86 pi/ + 69 shared/ + 148 host/)
 - Python 3.9 compat: use `Optional[X]`, `List[X]`, `Dict[K,V]`
-- README.md still references Java — needs updating
-- docs/PROGRESS.md is now the primary session-persistent progress tracker
+- Host is TCP server (Pi connects as client)
+- Simulation mode: `python3 -m host.main --simulate`
