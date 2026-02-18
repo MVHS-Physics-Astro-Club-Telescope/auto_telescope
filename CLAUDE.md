@@ -8,12 +8,13 @@
 
 When a new session begins, Claude MUST execute this sequence before doing anything else:
 
-1. **Scan repo**: `find . -maxdepth 3 -type f | head -80` for current file structure
-2. **Read READMEs**: Main README.md, host/README.md, pi/README.md, shared/README.md
-3. **Read MEMORY.md**: Load persistent decisions and architectural context
-4. **Read scratchpad.md**: Load current task state, blockers, and next steps
-5. **Check git**: `git status && git log --oneline -10`
-6. **Announce readiness**: Summarize state and suggest next step
+1. **Read docs/PROGRESS.md**: Source of truth — what's done, in progress, next, blockers
+2. **Read MEMORY.md**: Persistent architectural decisions
+3. **Read scratchpad.md**: Current task state and working notes
+4. **Read .claude/skills/task-board/SKILL.md**: Implementation checklist
+5. **Scan repo**: `find . -maxdepth 3 -type f -name '*.py' | head -80`
+6. **Check git**: `git status && git log --oneline -10`
+7. **Announce readiness**: Summarize where you left off and suggest next step
 
 ---
 
@@ -86,6 +87,13 @@ When a prompt starts with `cs` (or no prefix):
 4. scratchpad.md is updated
 5. Conventional commit message: `type(scope): description`
 
+### After EVERY Commit (Non-Negotiable Auto-Save):
+1. Update docs/PROGRESS.md — completed items, test counts, session log
+2. Update .claude/skills/task-board/SKILL.md — check off completed files
+3. Update scratchpad.md — current task, status, next steps
+4. Update MEMORY.md — only if architectural decisions were made
+This is mandatory. Never skip post-commit saves. The `/save` command does the same thing manually.
+
 ### Before ANY PR:
 1. All commit gates above
 2. MEMORY.md updated if architectural decisions were made
@@ -111,9 +119,14 @@ When a prompt starts with `cs` (or no prefix):
 - Critical architectural decisions MUST go in MEMORY.md, not just conversation
 
 ### Surviving compaction:
-- Keep MEMORY.md and scratchpad.md updated after every significant step
-- Use scratchpad.md `## Current Task` as the always-available breadcrumb
+- docs/PROGRESS.md is the primary source of truth — it survives across sessions
+- scratchpad.md `## Current Task` is the always-available breadcrumb
+- .claude/skills/task-board/SKILL.md tracks every file's completion status
 - If confused after compaction, re-run `/prime` to reload full context
+
+### End of Session:
+Before the session ends, ALWAYS run the auto-save sequence (same as post-commit save).
+This ensures the next session can pick up exactly where this one left off.
 
 ---
 
