@@ -8,13 +8,25 @@
 ## Current Status
 
 **Last Updated**: 2026-02-18
-**Branch**: main
-**Tests**: 163 passing (86 pi/ + 69 shared/ + 8 host/)
-**Overall Progress**: 2 of 5 layers complete
+**Branch**: feat/host-control-layer
+**Tests**: 303 passing (86 pi/ + 69 shared/ + 148 host/)
+**Overall Progress**: 3 of 5 layers complete
 
 ---
 
 ## Completed
+
+### host/ High-Level Control Layer (2026-02-18)
+- Branch: feat/host-control-layer, pending PR
+- 18 source files + 16 test files (148 tests, including 8 pre-existing)
+- **config/**: constants.py (network, PID, focus, observer defaults), ui_params.py
+- **utils/**: logger.py ([HOST] prefix), math_utils.py (Vincenty angular distance, normalize, clamp, alt_az_delta), threading_utils.py (StoppableThread, PeriodicTask)
+- **state/**: telescope_state.py (HostTelescopeState — thread-safe Pi state store), session_logs.py (circular buffer log)
+- **comms/**: validator.py (outgoing/incoming validation), receiver.py (background recv thread, state_report/ack/error dispatch), sender.py (send_move/focus/stop with validation and ack waiting)
+- **control/**: error_correction.py (PIDController), tracking_controller.py (resolve target, PID tracking loop, sidereal re-resolve), focus_controller.py (coarse-to-fine autofocus)
+- **simulation/**: test_data.py (sample targets, factory functions), simulator.py (in-process Pi mock with slew simulation)
+- **ui/**: display.py (format_state/tracking_info/log), host_interface.py (CLI: move, focus, stop, track, autofocus, status, log, help, quit)
+- **main.py**: TCP server, Pi accept, tracking background thread, argparse (--host/--port/--lat/--lon/--elev/--simulate)
 
 ### shared/ Protocol Layer (2026-02-18)
 - PR #6, merged to main
@@ -56,16 +68,9 @@ Nothing currently in progress.
 
 ## Next Up (Priority Order)
 
-1. **host/comms/** — TCP server + message handling (mirror of pi/comms/ but server-side)
-2. **host/state/** — Telescope state tracking, session logging
-3. **host/control/** — Tracking loop, error correction, focus control (desired_position.py already done)
-4. **host/config/** — Constants, UI params
-5. **host/utils/** — Logger, math helpers, threading utils
-6. **host/ui/** — Manual/auto interface, display
-7. **host/simulation/** — Testing without hardware
-8. **host/main.py** — Entry point, thread coordination
-9. **Integration testing** — End-to-end host↔pi communication tests
-10. **Documentation** — Update README.md (still references Java), fill docs/architecture.md
+1. **Integration testing** — End-to-end host↔pi communication tests
+2. **Documentation** — Update README.md (still references Java), fill docs/architecture.md
+3. **Dev tooling** — Add ruff, mypy to requirements-dev.txt
 
 ---
 
@@ -92,3 +97,7 @@ Nothing currently in progress.
 - Implemented shared/ protocol layer (11 files, 69 tests) — PR #6
 - Implemented pi/ hardware control layer (17 files, 86 tests) — PR #7
 - Created progress tracking system (docs/PROGRESS.md, /save command, task board)
+- Implemented host/ high-level control layer (18 source files, 16 test files, 148 tests)
+  - All 18 stubs replaced with full implementations
+  - TCP server, CLI interface, tracking controller, PID, autofocus, simulator
+  - 303 total tests passing across all layers

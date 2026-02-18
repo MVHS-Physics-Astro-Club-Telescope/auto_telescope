@@ -42,24 +42,25 @@
 
 ### host/ — High-Level Control
 - [x] host/control/desired_position.py (pre-existing)
-- [ ] host/config/constants.py
-- [ ] host/config/ui_params.py
-- [ ] host/utils/logger.py
-- [ ] host/utils/math_helpers.py
-- [ ] host/utils/threading_utils.py
-- [ ] host/comms/tcp_sender.py
-- [ ] host/comms/tcp_receiver.py
-- [ ] host/state/telescope_state.py
-- [ ] host/state/session_log.py
-- [ ] host/control/tracking.py
-- [ ] host/control/focus.py
-- [ ] host/control/error_correction.py
-- [ ] host/ui/manual_control.py
-- [ ] host/ui/auto_control.py
-- [ ] host/ui/display.py
-- [ ] host/simulation/mock_pi.py
-- [ ] host/simulation/sky_model.py
-- [ ] host/main.py
+- [x] host/config/constants.py
+- [x] host/config/ui_params.py
+- [x] host/utils/logger.py
+- [x] host/utils/math_utils.py
+- [x] host/utils/threading_utils.py
+- [x] host/comms/validator.py
+- [x] host/comms/receiver.py
+- [x] host/comms/sender.py
+- [x] host/state/telescope_state.py
+- [x] host/state/session_logs.py
+- [x] host/control/error_correction.py
+- [x] host/control/tracking_controller.py
+- [x] host/control/focus_controller.py
+- [x] host/ui/display.py
+- [x] host/ui/host_interface.py
+- [x] host/simulation/test_data.py
+- [x] host/simulation/simulator.py
+- [x] host/main.py
+- [x] tests/host/ (16 test files, 148 tests)
 
 ### Integration & Polish
 - [ ] End-to-end host↔pi communication tests
@@ -75,5 +76,5 @@
 |-------|-------|--------|
 | shared/ | 69 | Passing |
 | pi/ | 86 | Passing |
-| host/ | 8 | Passing |
-| **Total** | **163** | **All passing** |
+| host/ | 148 | Passing |
+| **Total** | **303** | **All passing** |

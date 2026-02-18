@@ -1,1 +1,24 @@
-# Physical, system, or tuning constants (PID gains, limits, thresholds)
+# Network
+SERVER_HOST = "0.0.0.0"
+SERVER_PORT = 5050
+
+# Tracking / PID
+TRACKING_LOOP_HZ = 10
+PID_KP = 1.0
+PID_KI = 0.0
+PID_KD = 0.1
+TRACKING_TOLERANCE_DEG = 0.01
+
+# Focus
+FOCUS_SEARCH_STEPS = [100, 50, 25, 10]
+FOCUS_METRIC_THRESHOLD = 0.05
+
+# Safety / heartbeat
+PI_HEARTBEAT_TIMEOUT_S = 10.0
+MAX_COMMAND_RETRIES = 3
+COMMAND_ACK_TIMEOUT_S = 5.0
+
+# Observer defaults — Mountain View, CA
+DEFAULT_OBSERVER_LAT = 37.3861
+DEFAULT_OBSERVER_LON = -122.0839
+DEFAULT_OBSERVER_ELEV = 32.0
