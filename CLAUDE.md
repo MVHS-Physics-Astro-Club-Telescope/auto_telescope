@@ -1,20 +1,6 @@
-# AUTO_TELESCOPE — Claude Code Master Prompt
+# AUTO_TELESCOPE
 
-> Autonomous telescope control system — Host ↔ Pi architecture with celestial tracking, motor control, and intelligent automation.
-
----
-
-## Session Priming (Auto-runs at session start)
-
-When a new session begins, Claude MUST execute this sequence before doing anything else:
-
-1. **Read docs/PROGRESS.md**: Source of truth — what's done, in progress, next, blockers
-2. **Read MEMORY.md**: Persistent architectural decisions
-3. **Read scratchpad.md**: Current task state and working notes
-4. **Read .claude/skills/task-board/SKILL.md**: Implementation checklist
-5. **Scan repo**: `find . -maxdepth 3 -type f -name '*.py' | head -80`
-6. **Check git**: `git status && git log --oneline -10`
-7. **Announce readiness**: Summarize where you left off and suggest next step
+> Autonomous telescope control system — Host <-> Pi architecture with celestial tracking, motor control, and intelligent automation.
 
 ---
 
@@ -22,12 +8,12 @@ When a new session begins, Claude MUST execute this sequence before doing anythi
 
 ```
 auto_telescope/
-├── CLAUDE.md              # This file — master prompt
+├── CLAUDE.md              # This file
 ├── MEMORY.md              # Persistent decisions & learnings
 ├── scratchpad.md          # Current task state
 ├── .claude/               # Claude Code config
 │   ├── settings.json      # Hooks, permissions
-│   ├── commands/          # Slash commands (/prime, /plan, /status, /commit, /review)
+│   ├── commands/          # Slash commands
 │   └── agents/            # Subagents (hardware-researcher, code-reviewer, test-runner, docs-writer)
 ├── host/                  # Host computer — high-level control
 │   ├── main.py            # Entry point, thread coordination
@@ -46,7 +32,7 @@ auto_telescope/
 │   ├── comms/             # TCP client, message parser
 │   ├── state/             # Position tracking, error state
 │   └── utils/             # Logger, timer, debug
-├── shared/                # Communication contract (Host ↔ Pi)
+├── shared/                # Communication contract (Host <-> Pi)
 │   ├── commands/          # move, focus, stop command definitions
 │   ├── enums/             # command_types, status_codes
 │   ├── errors/            # error_codes
@@ -60,100 +46,32 @@ auto_telescope/
 
 ---
 
-## Mode System
+## Hardware Safety (CRITICAL)
 
-### `cr` — Code Run (YOLO Mode)
-When a prompt starts with `cr`:
-- Execute without asking for confirmation on file writes, bash, git operations
-- Move fast: implement → test → commit in one flow
-- Still respect safety hooks (no force-push, no `rm -rf`)
-- Use for: rapid prototyping, known patterns, small changes
-
-### `cs` — Code Safe (Default)
-When a prompt starts with `cs` (or no prefix):
-- Ask before destructive file operations or git pushes
-- Show plan before multi-file changes
-- Pause at decision points for review
-- Use for: architectural changes, new features, unfamiliar territory
-
----
-
-## Quality Gates
-
-### Before ANY Commit:
-1. All modified files pass linting (if configured)
-2. All existing tests pass: `pytest tests/ -v`
-3. New code has tests for critical paths
-4. scratchpad.md is updated
-5. Conventional commit message: `type(scope): description`
-
-### After EVERY Commit (Non-Negotiable Auto-Save):
-1. Update docs/PROGRESS.md — completed items, test counts, session log
-2. Update .claude/skills/task-board/SKILL.md — check off completed files
-3. Update scratchpad.md — current task, status, next steps
-4. Update MEMORY.md — only if architectural decisions were made
-This is mandatory. Never skip post-commit saves. The `/save` command does the same thing manually.
-
-### Before ANY PR:
-1. All commit gates above
-2. MEMORY.md updated if architectural decisions were made
-3. README updated if public-facing behavior changed
-4. No `TODO`/`FIXME` without linked issue
-
-### Conventional Commit Types:
-- `feat`: New feature
-- `fix`: Bug fix
-- `docs`: Documentation
-- `refactor`: Code restructuring
-- `test`: Tests
-- `chore`: Build, CI, config
-- `hw`: Hardware-related (custom)
-
----
-
-## Context Management
-
-### How compaction works:
-- Claude Code compresses older messages when approaching context limits
-- MEMORY.md and scratchpad.md survive compaction — they're re-read on priming
-- Critical architectural decisions MUST go in MEMORY.md, not just conversation
-
-### Surviving compaction:
-- docs/PROGRESS.md is the primary source of truth — it survives across sessions
-- scratchpad.md `## Current Task` is the always-available breadcrumb
-- .claude/skills/task-board/SKILL.md tracks every file's completion status
-- If confused after compaction, re-run `/prime` to reload full context
-
-### End of Session:
-Before the session ends, ALWAYS run the auto-save sequence (same as post-commit save).
-This ensures the next session can pick up exactly where this one left off.
-
----
-
-## Telescope-Specific Knowledge
-
-### Hardware Safety (CRITICAL):
 - ALWAYS add timeouts to motor commands (max 30s default)
 - NEVER leave GPIO pins in undefined state — cleanup in `finally` blocks
 - Serial ports and cameras MUST use context managers or explicit close
 - Camera capture must handle connection loss gracefully
 - Pi safety_manager.py is the last line of defense — never bypass it
 
-### Celestial Math:
-- Use `astropy` for coordinate transforms (RA/Dec ↔ Alt/Az)
+## Celestial Math
+
+- Use `astropy` for coordinate transforms (RA/Dec <-> Alt/Az)
 - Time MUST be UTC internally, convert only at display layer
 - Account for atmospheric refraction in pointing calculations
 - Sidereal time calculations must use observer's longitude
 - `get_object_coordinates()` in host/control/desired_position.py is the reference implementation
 
-### Architecture Rules:
+## Architecture Rules
+
 - Host is hardware-agnostic — no Pi-specific values in host/
 - Pi is logic-agnostic — no celestial math in pi/
 - Shared is the single source of truth for message formats
 - Any shared/ change requires updating BOTH host/ and pi/
-- Commands flow: Host → Shared → Pi. State flows: Pi → Shared → Host.
+- Commands flow: Host -> Shared -> Pi. State flows: Pi -> Shared -> Host.
 
-### Testing:
+## Testing
+
 - `PYTHONPATH` must include repo root: `export PYTHONPATH=$PYTHONPATH:$(pwd)`
 - Tests requiring network (astropy queries) may be slow — mark with `@pytest.mark.slow`
 - All hardware interfaces must be mockable for offline testing
@@ -169,29 +87,26 @@ This ensures the next session can pick up exactly where this one left off.
 | Coordinates | astropy, astroquery | Celestial calculations, SIMBAD/Horizons |
 | Hardware IO | RPi.GPIO / gpiozero | Raspberry Pi GPIO (not yet in requirements) |
 | Motor Control | Stepper drivers (TBD) | Via pi/hardware/motor_driver.py |
-| Communication | TCP sockets | Host ↔ Pi via shared/protocols/ |
+| Communication | TCP sockets | Host <-> Pi via shared/protocols/ |
 | Testing | pytest | With hardware mocking |
 | CI/CD | GitHub Actions | .github/workflows/python-tests.yml |
 
 ---
 
-## Git Workflow
+## Branch Strategy
 
-### Branch Strategy:
 ```
-main                    ← Production-ready, protected
-├── develop             ← Integration branch (create when ready)
-│   ├── feat/XXX        ← Feature branches
-│   ├── fix/XXX         ← Bug fixes
-│   ├── hw/XXX          ← Hardware changes
-│   └── docs/XXX        ← Documentation
+main                    <- Production-ready, protected
+├── develop             <- Integration branch (create when ready)
+│   ├── feat/XXX        <- Feature branches
+│   ├── fix/XXX         <- Bug fixes
+│   ├── hw/XXX          <- Hardware changes
+│   └── docs/XXX        <- Documentation
 ```
 
-### Rules:
-- NEVER push directly to main — use feature branches and PRs
 - Branch names: `feat/add-star-tracking`, `fix/motor-stall-timeout`, `hw/stepper-driver`
 - Squash merge to keep history clean
-- PR template: What, Why, How, Testing, Hardware Impact
+- Custom commit type: `hw(scope):` for hardware-related changes
 
 ---
 
@@ -199,11 +114,8 @@ main                    ← Production-ready, protected
 
 1. **Hardware safety first** — Every motor command needs a failsafe. Every sensor read needs a timeout.
 2. **Test with mocks** — Hardware isn't always connected. All hardware interfaces must be mockable.
-3. **Incremental progress** — Small commits, working state at every step.
-4. **Document as you go** — MEMORY.md, scratchpad.md, and READMEs are not optional.
-5. **Branch discipline** — Never commit directly to main.
-6. **Shared is sacred** — Changes to shared/ affect both sides. Coordinate carefully.
-7. **Host stays clean** — No hardware-specific code in host/.
-8. **Pi stays focused** — No high-level logic in pi/. It executes, doesn't decide.
-9. **Fail loud** — Hardware I/O must never fail silently. Log and propagate errors.
-10. **UTC everywhere** — Internal time is always UTC. Convert only at display boundaries.
+3. **Shared is sacred** — Changes to shared/ affect both sides. Coordinate carefully.
+4. **Host stays clean** — No hardware-specific code in host/.
+5. **Pi stays focused** — No high-level logic in pi/. It executes, doesn't decide.
+6. **Fail loud** — Hardware I/O must never fail silently. Log and propagate errors.
+7. **UTC everywhere** — Internal time is always UTC. Convert only at display boundaries.

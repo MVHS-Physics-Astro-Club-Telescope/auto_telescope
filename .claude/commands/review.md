@@ -1,8 +1,4 @@
-Review current uncommitted changes:
-
-1. Run `git diff` to see all changes (staged + unstaged)
-2. Run `git diff --stat` for a summary view
-3. Review each changed file for:
+Review current uncommitted changes. Focus on these telescope-specific concerns:
 
 **Safety (CRITICAL for pi/ files):**
 - [ ] Motor commands have timeouts (max 30s)
@@ -29,10 +25,3 @@ Review current uncommitted changes:
 - [ ] Functions have clear single responsibility
 - [ ] Constants defined in config/, not magic numbers
 - [ ] Imports are clean and organized
-
-4. Flag issues with severity:
-   - **CRITICAL**: Must fix before commit (safety, data loss, broken protocol)
-   - **WARNING**: Should fix soon (error handling gaps, missing tests)
-   - **INFO**: Nice to fix (style, naming, minor improvements)
-
-5. Suggest specific fixes for CRITICAL issues
