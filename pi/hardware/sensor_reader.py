@@ -51,6 +51,8 @@ class GPIOSensorReader(SensorReader):
         )
 
     def read_encoders(self) -> EncoderReading:
+        # TODO: read_encoders() is a stub awaiting hardware integration;
+        # replace with actual I2C/SPI encoder reads once hardware is connected.
         return EncoderReading()
 
 
