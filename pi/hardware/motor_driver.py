@@ -48,13 +48,19 @@ class StepperMotorDriver(MotorDriver):
         self._gpio = gpio
         self._pins = pins
         self._enabled = False
+        # Explicitly disable motor at init — GPIO setup may default the enable
+        # pin to LOW which is "enabled" under TMC2209 active-LOW convention.
+        # Park in disabled state until step() explicitly calls enable().
+        self._gpio.write(self._pins.enable, HIGH)
 
     def enable(self) -> None:
-        self._gpio.write(self._pins.enable, HIGH)
+        # TMC2209 ENN pin is active-LOW: LOW = enabled, HIGH = disabled
+        self._gpio.write(self._pins.enable, LOW)
         self._enabled = True
 
     def disable(self) -> None:
-        self._gpio.write(self._pins.enable, LOW)
+        # TMC2209 ENN pin is active-LOW: LOW = enabled, HIGH = disabled
+        self._gpio.write(self._pins.enable, HIGH)
         self._enabled = False
 
     def step(

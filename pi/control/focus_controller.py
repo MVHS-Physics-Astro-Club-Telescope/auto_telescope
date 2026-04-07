@@ -23,6 +23,8 @@ class FocusController:
         self._safety = safety
         self._state = state_manager
         self._errors = error_state
+        # TODO: _position = 0 assumes the focuser is homed at startup;
+        # implement a homing routine or load last known position from persistent storage.
         self._position = 0
 
     def execute_focus(self, cmd: FocusCommand) -> bool:

@@ -1,6 +1,9 @@
+import logging
 import threading
 import time
 from typing import Callable, Optional
+
+logger = logging.getLogger("threading_utils")
 
 
 class StoppableThread:
@@ -83,7 +86,7 @@ class PeriodicTask:
             try:
                 self._target()
             except Exception:
-                pass
+                logger.exception("PeriodicTask error")
             elapsed = time.monotonic() - start
             sleep_time = self._interval - elapsed
             if sleep_time > 0:

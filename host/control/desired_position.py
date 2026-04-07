@@ -1,7 +1,11 @@
+import logging
+
 from astropy.coordinates import SkyCoord, EarthLocation, AltAz, get_body
 from astropy.time import Time
 from astroquery.jplhorizons import Horizons
 import astropy.units as u
+
+logger = logging.getLogger("desired_position")
 
 def get_object_coordinates(name, lat, lon, elevation):
     """
@@ -30,8 +34,8 @@ def get_object_coordinates(name, lat, lon, elevation):
             body = get_body(name_lower, t)
             ra = body.ra.deg
             dec = body.dec.deg
-        except:
-            pass
+        except Exception as e:
+            logger.warning("Failed to resolve solar system body '%s': %s", name_lower, e)
         else:
             altaz = body.transform_to(AltAz(obstime=t, location=location))
             alt_deg = altaz.alt.deg
@@ -45,8 +49,8 @@ def get_object_coordinates(name, lat, lon, elevation):
         eph = obj.ephemerides()
         ra = float(eph['RA'][0])
         dec = float(eph['DEC'][0])
-    except:
-        pass
+    except Exception as e:
+        logger.warning("Failed to resolve '%s' via JPL Horizons: %s", name_original, e)
     else:
         coord = SkyCoord(ra=ra * u.deg, dec=dec * u.deg)
         altaz = coord.transform_to(AltAz(obstime=t, location=location))
@@ -58,8 +62,8 @@ def get_object_coordinates(name, lat, lon, elevation):
     # SIMBAD / Name resolution (keep original case)
     try:
         coord = SkyCoord.from_name(name_original)
-    except:
-        pass
+    except Exception as e:
+        logger.warning("Failed to resolve '%s' via SIMBAD: %s", name_original, e)
     else:
         ra = coord.ra.deg
         dec = coord.dec.deg
