@@ -60,6 +60,9 @@ def check_sun_avoidance(
 
     sun_pos = sun_altitude(when_utc, site)
     target_pos = radec_to_altaz(target, when_utc, site)
+    # Defense-in-depth: AltAzPosition.__post_init__ already validates [-90, 90],
+    # but we re-check here so a future refactor of that invariant cannot silently
+    # let an invalid altitude reach the safety gate.
     if target_pos.altitude_deg < -90.0 or target_pos.altitude_deg > 90.0:
         return InterlockResult.deny("invalid_target_altitude", "target altitude out of range")
 
