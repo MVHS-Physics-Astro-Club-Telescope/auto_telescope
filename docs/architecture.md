@@ -1,238 +1,111 @@
-# Architecture
+# Architecture (Phase 1A — Pi-only refactor)
 
-## System Overview
+## What changed
 
-The telescope software is a two-process system connected over TCP:
+The original design was a host+Pi+TCP split (see `auto_telescope_design_v3.md` for
+full history). Phase 1A pivots to **single-Pi**: every module lives on the
+Raspberry Pi 5 next to the telescope, communicating in-process. Reasons:
 
-```
-┌───────────────────────────────────────────────────────────────────┐
-│                         Host Computer                             │
-│                                                                   │
-│  ┌──────────┐  ┌──────────────┐  ┌────────────┐  ┌───────────┐  │
-│  │ CLI / UI │  │   Tracking   │  │  Autofocus  │  │ Celestial │  │
-│  │          │  │  Controller  │  │ Controller  │  │ Resolver  │  │
-│  └────┬─────┘  └──────┬───────┘  └─────┬──────┘  └─────┬─────┘  │
-│       │               │                │               │         │
-│       └───────────┬────┴────────────────┴───────────────┘         │
-│                   │                                               │
-│  ┌────────────────▼──────────────────┐  ┌──────────────────────┐ │
-│  │  Sender (send_move/focus/stop)    │  │  HostTelescopeState  │ │
-│  └────────────────┬──────────────────┘  └──────────▲───────────┘ │
-│                   │                                │              │
-│  ┌────────────────▼──────────────────────────────┐ │              │
-│  │          TCP Server (port 5050)                │ │              │
-│  │  ┌──────────────────────────────────────────┐ │ │              │
-│  │  │ Receiver (background thread)             │─┼─┘              │
-│  │  │  - state_report -> HostTelescopeState    │ │                │
-│  │  │  - ack/error -> response_queue           │ │                │
-│  │  └──────────────────────────────────────────┘ │                │
-│  └───────────────────────────────────────────────┘                │
-└───────────────────────────┬───────────────────────────────────────┘
-                            │  TCP (4-byte length-prefixed JSON)
-                            │
-                  ┌─────────┴─────────┐
-                  │  shared/ protocol  │
-                  │  - MoveCommand     │
-                  │  - FocusCommand    │
-                  │  - StopCommand     │
-                  │  - TelescopeState  │
-                  │  - StatusCode      │
-                  │  - ErrorCode       │
-                  └─────────┬─────────┘
-                            │
-┌───────────────────────────▼───────────────────────────────────────┐
-│                       Raspberry Pi                                │
-│                                                                   │
-│  ┌───────────────────────────────────────────────────────────┐    │
-│  │  TCPClient (connect, background receiver, send)           │    │
-│  └───────────────────────┬───────────────────────────────────┘    │
-│                          │                                        │
-│  ┌───────────────────────▼───────────────────────────────────┐    │
-│  │  Main Loop (50 Hz, single-threaded)                       │    │
-│  │  - Pull from msg_queue                                    │    │
-│  │  - _dispatch_command() -> ack + execute                   │    │
-│  │  - Periodic state reports (5 Hz)                          │    │
-│  │  - Safety checks every tick                               │    │
-│  └──────┬─────────────────┬──────────────────┬───────────────┘    │
-│         │                 │                  │                    │
-│  ┌──────▼──────┐  ┌───────▼───────┐  ┌──────▼──────────┐        │
-│  │   Motor     │  │    Focus      │  │  Safety         │        │
-│  │  Controller │  │  Controller   │  │  Manager        │        │
-│  │             │  │               │  │                  │        │
-│  │ - alt axis  │  │ - position    │  │ - limit switches │        │
-│  │ - az axis   │  │   tracking    │  │ - position bounds│        │
-│  │ - chunked   │  │ - in/out      │  │ - watchdog       │        │
-│  │   stepping  │  │               │  │ - emergency stop │        │
-│  └──────┬──────┘  └───────┬───────┘  └──────┬──────────┘        │
-│         │                 │                  │                    │
-│  ┌──────▼─────────────────▼──────────────────▼───────────────┐    │
-│  │  Hardware ABCs (MotorDriver, SensorReader, GPIOProvider)  │    │
-│  │  - StepperMotorDriver / MockMotorDriver                   │    │
-│  │  - GPIOSensorReader / MockSensorReader                    │    │
-│  │  - HardwareGPIOProvider / MockGPIOProvider                │    │
-│  └───────────────────────────────────────────────────────────┘    │
-└───────────────────────────────────────────────────────────────────┘
-```
+* Solo software lead. Two-process designs double the failure surface.
+* Pi 5 has more than enough CPU for the celestial math at the cadence we need.
+* Eliminating a TCP boundary kills an entire class of bugs (serialization,
+  reconnect, partial reads).
 
-## Layers
+The hardware abstraction (motors, GPIO, sensors) is still planned for Phase 1B
+and will live alongside this code in `auto_telescope.hardware`. Phase 1A does
+NOT include any motor / GPIO control — only the planning brain.
 
-### shared/ -- Protocol Contract
-
-The shared layer defines the communication contract consumed by both Host and Pi. Neither side imports the other; they only import shared.
-
-**Commands** (Host -> Pi):
-- `MoveCommand` -- target alt/az in degrees, speed (0-1), timeout
-- `FocusCommand` -- direction (in/out), steps, timeout
-- `StopCommand` -- emergency flag, reason string
-
-**State** (Pi -> Host):
-- `TelescopeState` -- current position, status, target, error codes, focus position, tracking flag
-
-**Protocol**:
-- TCP with 4-byte big-endian length prefix followed by UTF-8 JSON payload
-- Max message size: 64 KB
-- Message types: command (Host->Pi), ack/error/state_report (Pi->Host)
-- `MessageValidator` enforces ranges (alt 0-90, az 0-360, speed 0-1, focus steps 1-10000)
-
-**Enums**:
-- `CommandType`: MOVE, FOCUS, STOP, STATUS_REQUEST
-- `StatusCode`: IDLE, MOVING, FOCUSING, EMERGENCY_STOP, OK, BUSY, ERROR
-- `ErrorCode`: Motor (10-19), Position (20-29), Focus (30-39), Comms (40-49), Camera (50-59), Sensor (60-69), Safety (70-79)
-
-### host/ -- High-Level Control
-
-The Host is hardware-agnostic. It never references GPIO pins, motor drivers, or Pi-specific values.
-
-**Control flow**:
-1. `main.py` starts a TCP server and waits for Pi to connect
-2. Once connected, the CLI (`host_interface.py`) accepts user commands
-3. Commands are validated (`validator.py`), serialized, and sent via `Sender`
-4. `Receiver` runs a background thread processing incoming messages:
-   - `state_report` -> updates `HostTelescopeState`
-   - `ack` / `error` -> routes to `response_queue` for `Sender.wait_for_ack()`
-
-**Tracking loop** (`tracking_controller.py`):
-1. Resolve target name to RA/Dec via astropy/astroquery (`desired_position.py`)
-2. Convert RA/Dec to Alt/Az for current time and observer location
-3. Compare with current position from `HostTelescopeState`
-4. Apply PID correction (`error_correction.py`)
-5. Send move command if error exceeds tolerance (0.01 deg)
-6. Re-resolve periodically for sidereal motion
-
-**Autofocus** (`focus_controller.py`):
-- Coarse-to-fine search: steps of [100, 50, 25, 10]
-- Moves focus in/out, compares metric, converges on best position
-
-**Simulation mode** (`--simulate`):
-- `Simulator` replaces the TCP connection with an in-process mock Pi
-- Simulates slew motion, focus, and state reporting
-- Enables full Host testing without any hardware or network
-
-### pi/ -- Hardware Control
-
-The Pi is logic-agnostic. It executes commands, doesn't decide what to track. All celestial math stays on the Host.
-
-**Main loop** (`main.py`):
-- Single-threaded at 50 Hz with `LoopTimer`
-- Each tick: feed watchdog, safety check, process one command from queue, periodic state report at 5 Hz
-- `_dispatch_command()`: validate -> ack -> execute (move/focus/stop)
-
-**Motor control** (`motor_controller.py`):
-- Converts degrees to steps using `STEPS_PER_DEGREE` constants
-- Chunked stepping (50 steps/chunk) with `stop_event` for responsive cancellation
-- Moves alt axis first, then az axis (sequential, not simultaneous)
-- Speed maps linearly from 0-1 to MIN_STEP_RATE_HZ - MAX_STEP_RATE_HZ
-
-**Safety manager** (`safety_manager.py`):
-- Last line of defense -- checked every tick
-- Limit switches: triggers emergency stop if any switch is hit
-- Position bounds: alt [0, 90], az [0, 360]
-- Watchdog: emergency stop if not fed within timeout
-- Emergency stop: disables all motors, sets EMERGENCY_STOP status
-
-**Hardware abstraction**:
-- `MotorDriver` ABC with `StepperMotorDriver` (real) and `MockMotorDriver` (testing)
-- `SensorReader` ABC with `GPIOSensorReader` (real) and `MockSensorReader` (testing)
-- `GPIOProvider` ABC with `HardwareGPIOProvider` (RPi.GPIO) and `MockGPIOProvider` (testing)
-- RPi.GPIO is imported lazily (only in `HardwareGPIOProvider.__init__`), so all Pi code is importable on non-Pi systems
-
-## Communication Flow
-
-### Command round-trip (Host sends move):
+## Module map
 
 ```
-Host                              Pi
- │                                 │
- │  MoveCommand (JSON over TCP)    │
- │ ──────────────────────────────> │
- │                                 │  validate -> is_valid_command()
- │         ack response            │
- │ <────────────────────────────── │
- │                                 │  motor_ctrl.execute_move()
- │                                 │    set_status(MOVING)
- │                                 │    step alt motor (chunked)
- │                                 │    step az motor (chunked)
- │                                 │    update_position()
- │                                 │    set_status(IDLE)
- │                                 │
- │         state_report            │  (periodic, 5 Hz)
- │ <────────────────────────────── │
- │                                 │
- │  update HostTelescopeState      │
- │                                 │
+src/auto_telescope/
+├── config/
+│   ├── site.py        Site dataclass + MVHS_SITE default
+│   └── settings.py    Pydantic settings (env-driven)
+├── conditions/
+│   ├── seven_timer.py 7Timer! ASTRO adapter (cloud, seeing, transparency)
+│   ├── nws.py         NOAA api.weather.gov adapter
+│   ├── open_meteo.py  Open-Meteo adapter (backup)
+│   ├── aggregator.py  Reconcile 3 providers → ConditionsForecast list
+│   └── cache.py       diskcache wrapper for API responses
+├── visibility/
+│   ├── coordinates.py RA/Dec ↔ Alt/Az transforms (astropy)
+│   ├── horizons.py    is_above_horizon, sun_altitude, sun_below_horizon
+│   ├── rules.py       is_visible (sun + alt + moon)
+│   └── windows.py     compute_windows: contiguous visibility blocks
+├── catalog/
+│   ├── targets.py     Target dataclass, TargetType, Tier, resolve_target
+│   ├── curated.py     ~70 hand-tiered targets for the 10" Dob
+│   ├── solar_system.py Live Sun/Moon/planet ephemerides
+│   ├── simbad.py      SIMBAD network fallback
+│   └── feasibility.py "Should we even attempt this?" check
+├── scheduler/
+│   └── best_time.py   find_best_windows: ranked observation windows
+├── safety/
+│   └── interlocks.py  HARD safety checks; fail-CLOSED everywhere
+└── __init__.py
 ```
 
-### Error flow (invalid command):
+## Data flow
 
 ```
-Host                              Pi
- │                                 │
- │  Invalid command (raw TCP)      │
- │ ──────────────────────────────> │
- │                                 │  is_valid_command() -> False
- │       error response            │
- │ <────────────────────────────── │  build_error_response(cmd_id, msg)
- │                                 │
- │  routes to response_queue       │
- │                                 │
+                   ┌─────────────────────────┐
+                   │  user / scheduler tick  │
+                   └────────────┬────────────┘
+                                │ "find best time for M13"
+                                ▼
+   ┌──────────────────────────────────────────────────┐
+   │ scheduler.find_best_windows                      │
+   │  1. catalog.resolve_target ─► Target             │
+   │  2. visibility.compute_windows ─► [Window]       │
+   │  3. conditions.aggregator.fetch ─► [Forecast]    │
+   │  4. score(window, forecast) ─► [ScoredWindow]    │
+   └────────────┬───────────────────────────────┬─────┘
+                │                               │
+                ▼                               ▼
+       astropy local math               HTTP: 7Timer + NOAA + Open-Meteo
+       (Sun/Moon/planet ephemerides)    (parallel-safe; cache 15 min)
+
+
+   ┌──────────────────────────────────────────────────┐
+   │ Before any slew, controller calls:               │
+   │   safety.check_can_slew(coord, when, forecast)   │
+   │ Refuses on FIRST failure (sun → horizon → wind)  │
+   └──────────────────────────────────────────────────┘
 ```
 
-## Threading Model
+## Why this layout works for solo maintenance
 
-**Host** (3 threads during operation):
-1. Main thread -- CLI input loop
-2. Receiver thread -- `recv_message()` loop, dispatches to state/queue
-3. Tracking thread (optional) -- periodic PID updates when tracking
+* **Single-direction imports**: `safety` depends on `visibility` + `conditions`,
+  but neither imports `safety`. No cycles.
+* **Pure dataclasses across boundaries**: `Target`, `EquatorialCoord`,
+  `ConditionsForecast`, `InterlockResult`. These are the only types that cross
+  module boundaries. Everything else is private.
+* **Every public function is testable in isolation**: the test suite has 87
+  cases covering pure logic, property invariants, adversarial safety, real-API
+  recordings, and end-to-end pipelines.
+* **Fail-CLOSED safety**: if the conditions aggregator can't reach any provider,
+  `check_wind` refuses. If a coordinate transform fails, the calling function
+  raises. The system never silently slews on incomplete data.
 
-**Pi** (2 threads during operation):
-1. Main thread -- 50 Hz dispatch loop
-2. TCPClient receiver thread -- `recv()` loop, puts messages on queue
+## External integrations
 
-All shared state is protected by `threading.Lock`. The Pi's main loop is deliberately single-threaded to avoid hardware contention.
+| Service | Purpose | Fallback |
+|---------|---------|----------|
+| 7Timer! ASTRO | seeing, transparency, cloud | aggregator continues without seeing |
+| NOAA api.weather.gov | wind, clouds, temp (US) | aggregator continues |
+| Open-Meteo | cloud, visibility, wind (worldwide) | aggregator continues |
+| astropy | local Sun/Moon/planet ephemeris | none — local data |
+| SIMBAD (astroquery) | resolve unknown target names | catalog.resolve_target raises KeyError |
 
-## Testing Strategy
+## Performance budget
 
-| Layer | Approach | Count |
-|-------|----------|-------|
-| shared/ | Pure unit tests on data classes, protocol, validation | 69 |
-| pi/ | Unit tests with MockMotorDriver, MockSensorReader, MockGPIOProvider | 86 |
-| host/ | Unit tests with mocked Sender, socket pairs, mock resolvers | 148 |
-| integration/ | Real loopback TCP, IntegrationHarness wires both sides | 25 |
-| **Total** | | **328** |
+On a Pi 5:
+* `radec_to_altaz` for one target: ~5 ms.
+* 7-day visibility window scan with 15-min steps (672 evaluations): ~3 s.
+* All-three-providers fetch: ~2 s (parallel-safe; cached for 15 min).
+* `find_best_windows("M13", days=7)` end-to-end: ~5 s on cold cache, < 100 ms
+  with warm cache.
 
-**Integration test harness** (`tests/integration/conftest.py`):
-- Creates a TCP server on an ephemeral port (`127.0.0.1:0`)
-- Wires real Host Sender+Receiver against real Pi dispatch loop
-- Pi dispatch runs in a background thread with `_dispatch_command()` imported from `pi.main`
-- State reports triggered manually for deterministic assertions
-- `wait_for_condition()` polling replaces `time.sleep()` for reliable async testing
-
-## Key Design Decisions
-
-1. **Host is the TCP server, Pi is the client** -- Pi connects to Host on startup, enabling the Host to be started first and wait for Pi
-2. **Ack before execute** -- Pi sends ack immediately upon receiving a valid command, then executes it. This unblocks the Host's `wait_for_ack()` quickly
-3. **Chunked stepping** -- Motor moves are broken into 50-step chunks, checking `stop_event` between chunks for responsive cancellation
-4. **Sequential axis movement** -- Alt moves first, then Az (not simultaneous). Simpler, avoids concurrent motor driver access
-5. **All time in UTC** -- Internal timestamps use UTC. Display layer converts to local time
-6. **Hardware behind ABCs** -- Every hardware interface has a mock implementation, enabling full test coverage without physical hardware
-7. **Shared is sacred** -- Any change to shared/ requires updating both Host and Pi. The protocol is the contract
+This is well within the "scheduler runs every 5 minutes" budget envisioned for
+Phase 1B's autonomous operation loop.

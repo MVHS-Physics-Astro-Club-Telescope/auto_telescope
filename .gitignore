@@ -1,26 +1,52 @@
-# Python cache
+# Python
 __pycache__/
-*.pyc
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+*.egg
+build/
+dist/
+.eggs/
 
-# Logs
-*.log
-logs/
+# Virtualenvs
+.venv/
+venv/
+env/
 
-# OS-specific files
+# Tests / coverage
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+coverage.xml
+.hypothesis/
+.mypy_cache/
+.ruff_cache/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
 .DS_Store
 Thumbs.db
 
-# Virtual environments
-venv/
-.env/
+# Cache (diskcache for API responses)
+.cache/
+.auto_telescope_cache/
 
-# IDE/project files
-.vscode/
-.idea/
+# Secrets (none used by Phase 1A APIs, but defense in depth)
+.env
+.env.*
+!.env.example
 
-# Build artifacts or compiled code
-build/
-dist/
+# Build artifacts (Pi specific)
+*.log
+logs/
 
-# Qudo extension
+# Qodo
 .qodo/
