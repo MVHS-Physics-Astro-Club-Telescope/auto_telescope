@@ -1,0 +1,146 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "auto_telescope"
+version = "0.1.0"
+description = "Pi-only autonomous control software for the MVHS Physics & Astronomy Club 10-inch Truss-Tube Dobsonian telescope."
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+authors = [
+    { name = "Eeshan Khandelwal", email = "mvhsphysicsastroclub@gmail.com" },
+]
+keywords = ["astronomy", "telescope", "raspberry-pi", "dobsonian", "automation"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Education",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Scientific/Engineering :: Astronomy",
+]
+dependencies = [
+    "astropy>=6.0",
+    "astroquery>=0.4.7",
+    "requests>=2.31",
+    "diskcache>=5.6",
+    "pydantic>=2.6",
+    "pydantic-settings>=2.2",
+    "python-dateutil>=2.8",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    "pytest-cov>=5.0",
+    "hypothesis>=6.100",
+    "vcrpy>=6.0",
+    "pytest-vcr>=1.0.2",
+    "ruff>=0.5",
+    "mypy>=1.10",
+    "types-requests",
+    "types-python-dateutil",
+    "pre-commit>=3.7",
+]
+
+[project.urls]
+Homepage = "https://github.com/MVHS-Physics-Astro-Club-Telescope/auto_telescope"
+Issues = "https://github.com/MVHS-Physics-Astro-Club-Telescope/auto_telescope/issues"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+auto_telescope = ["py.typed"]
+
+[tool.pytest.ini_options]
+minversion = "8.0"
+testpaths = ["tests"]
+addopts = [
+    "--strict-markers",
+    "-ra",
+]
+markers = [
+    "integration: hits real external APIs (recorded with vcrpy)",
+    "slow: long-running tests (>1s)",
+    "safety: adversarial / safety-critical tests",
+]
+filterwarnings = [
+    "ignore::DeprecationWarning:astropy.*",
+    "ignore::DeprecationWarning:astroquery.*",
+    "ignore::PendingDeprecationWarning",
+    "ignore::astropy.coordinates.baseframe.NonRotationTransformationWarning",
+    "ignore::astroquery.simbad.core.NoResultsWarning",
+    "ignore::erfa.core.ErfaWarning",
+]
+
+[tool.coverage.run]
+source = ["src/auto_telescope"]
+branch = true
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes
+    "I",   # isort
+    "UP",  # pyupgrade
+    "B",   # flake8-bugbear
+    "SIM", # flake8-simplify
+    "C4",  # flake8-comprehensions
+    "RUF", # ruff-specific
+]
+ignore = [
+    "E501",  # line too long (handled by formatter)
+    "B008",  # function call in default argument (pydantic Field)
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["B011"]
+# Astronomical names use Greek letters (α Cyg, β Ori, etc) and the multiplication
+# sign in FOV ('14×11'). Suppress ambiguous-character lints in catalog + docs.
+"src/auto_telescope/catalog/curated.py" = ["RUF001", "RUF002", "RUF003"]
+"src/auto_telescope/catalog/feasibility.py" = ["RUF002", "RUF003"]
+"src/auto_telescope/catalog/solar_system.py" = ["RUF002"]
+"src/auto_telescope/catalog/simbad.py" = ["RUF002"]
+"src/auto_telescope/conditions/seven_timer.py" = ["RUF002"]
+"src/auto_telescope/conditions/aggregator.py" = ["RUF002"]
+"src/auto_telescope/safety/interlocks.py" = ["RUF002"]
+"src/auto_telescope/scheduler/best_time.py" = ["RUF002", "RUF003"]
+"src/auto_telescope/visibility/coordinates.py" = ["RUF002"]
+"src/auto_telescope/visibility/horizons.py" = ["RUF002"]
+"src/auto_telescope/visibility/rules.py" = ["RUF002"]
+"src/auto_telescope/visibility/windows.py" = ["RUF002"]
+"src/auto_telescope/__init__.py" = ["RUF002"]
+
+[tool.mypy]
+python_version = "3.11"
+strict = false
+warn_unused_configs = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+disallow_untyped_defs = false
+check_untyped_defs = true
+ignore_missing_imports = true
+files = ["src/auto_telescope"]
+
+[[tool.mypy.overrides]]
+module = ["astropy.*", "astroquery.*", "diskcache.*"]
+ignore_missing_imports = true

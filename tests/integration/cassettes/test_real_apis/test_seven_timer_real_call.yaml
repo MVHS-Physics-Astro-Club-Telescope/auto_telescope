@@ -1,0 +1,151 @@
+interactions:
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+    method: GET
+    uri: https://www.7timer.info/bin/api.pl?lon=-122.0770&lat=37.3660&product=astro&output=json
+  response:
+    body:
+      string: ''
+    headers:
+      Connection:
+      - Keep-Alive
+      Content-Type:
+      - text/x-perl
+      Date:
+      - Sun, 26 Apr 2026 06:06:14 GMT
+      Keep-Alive:
+      - timeout=5, max=100
+      Location:
+      - https://www.7timer.info/bin/astro.php?lon=-122.1&lat=37.4&ac=0&unit=metric&output=json&tzshift=0&points=24
+      Server:
+      - Apache/2.4.66 (Debian)
+      Transfer-Encoding:
+      - chunked
+    status:
+      code: 302
+      message: Found
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+    method: GET
+    uri: https://www.7timer.info/bin/astro.php?lon=-122.1&lat=37.4&ac=0&unit=metric&output=json&tzshift=0&points=24
+  response:
+    body:
+      string: "{\n\t\"product\" : \"astro\" ,\n\t\"init\" : \"2026042600\" ,\n\t\"dataseries\"
+        : [\n\t{\n\t\t\"timepoint\" : 3,\n\t\t\"cloudcover\" : 9,\n\t\t\"seeing\"
+        : 2,\n\t\t\"transparency\" : 7,\n\t\t\"lifted_index\" : 6,\n\t\t\"rh2m\" :
+        13,\n\t\t\"wind10m\" : {\n\t\t\t\"direction\" : \"SW\",\n\t\t\t\"speed\" :
+        2\n\t\t},\n\t\t\"temp2m\" : 12,\n\t\t\"prec_type\" : \"none\"\n\t},\n\t{\n\t\t\"timepoint\"
+        : 6,\n\t\t\"cloudcover\" : 9,\n\t\t\"seeing\" : 3,\n\t\t\"transparency\" :
+        7,\n\t\t\"lifted_index\" : 6,\n\t\t\"rh2m\" : 14,\n\t\t\"wind10m\" : {\n\t\t\t\"direction\"
+        : \"S\",\n\t\t\t\"speed\" : 2\n\t\t},\n\t\t\"temp2m\" : 12,\n\t\t\"prec_type\"
+        : \"none\"\n\t},\n\t{\n\t\t\"timepoint\" : 9,\n\t\t\"cloudcover\" : 9,\n\t\t\"seeing\"
+        : 4,\n\t\t\"transparency\" : 6,\n\t\t\"lifted_index\" : 10,\n\t\t\"rh2m\"
+        : 14,\n\t\t\"wind10m\" : {\n\t\t\t\"direction\" : \"S\",\n\t\t\t\"speed\"
+        : 2\n\t\t},\n\t\t\"temp2m\" : 12,\n\t\t\"prec_type\" : \"none\"\n\t},\n\t{\n\t\t\"timepoint\"
+        : 12,\n\t\t\"cloudcover\" : 9,\n\t\t\"seeing\" : 2,\n\t\t\"transparency\"
+        : 6,\n\t\t\"lifted_index\" : 10,\n\t\t\"rh2m\" : 13,\n\t\t\"wind10m\" : {\n\t\t\t\"direction\"
+        : \"SE\",\n\t\t\t\"speed\" : 2\n\t\t},\n\t\t\"temp2m\" : 11,\n\t\t\"prec_type\"
+        : \"rain\"\n\t},\n\t{\n\t\t\"timepoint\" : 15,\n\t\t\"cloudcover\" : 5,\n\t\t\"seeing\"
+        : 2,\n\t\t\"transparency\" : 7,\n\t\t\"lifted_index\" : 6,\n\t\t\"rh2m\" :
+        13,\n\t\t\"wind10m\" : {\n\t\t\t\"direction\" : \"S\",\n\t\t\t\"speed\" :
+        2\n\t\t},\n\t\t\"temp2m\" : 12,\n\t\t\"prec_type\" : \"rain\"\n\t},\n\t{\n\t\t\"timepoint\"
+        : 18,\n\t\t\"cloudcover\" : 5,\n\t\t\"seeing\" : 2,\n\t\t\"transparency\"
+        : 3,\n\t\t\"lifted_index\" : 6,\n\t\t\"rh2m\" : 8,\n\t\t\"wind10m\" : {\n\t\t\t\"direction\"
+        : \"W\",\n\t\t\t\"speed\" : 3\n\t\t},\n\t\t\"temp2m\" : 13,\n\t\t\"prec_type\"
+        : \"rain\"\n\t},\n\t{\n\t\t\"timepoint\" : 21,\n\t\t\"cloudcover\" : 4,\n\t\t\"seeing\"
+        : 2,\n\t\t\"transparency\" : 3,\n\t\t\"lifted_index\" : 6,\n\t\t\"rh2m\" :
+        10,\n\t\t\"wind10m\" : {\n\t\t\t\"direction\" : \"W\",\n\t\t\t\"speed\" :
+        3\n\t\t},\n\t\t\"temp2m\" : 17,\n\t\t\"prec_type\" : \"rain\"\n\t},\n\t{\n\t\t\"timepoint\"
+        : 24,\n\t\t\"cloudcover\" : 3,\n\t\t\"seeing\" : 2,\n\t\t\"transparency\"
+        : 2,\n\t\t\"lifted_index\" : 6,\n\t\t\"rh2m\" : 5,\n\t\t\"wind10m\" : {\n\t\t\t\"direction\"
+        : \"W\",\n\t\t\t\"speed\" : 3\n\t\t},\n\t\t\"temp2m\" : 16,\n\t\t\"prec_type\"
+        : \"rain\"\n\t},\n\t{\n\t\t\"timepoint\" : 27,\n\t\t\"cloudcover\" : 1,\n\t\t\"seeing\"
+        : 5,\n\t\t\"transparency\" : 3,\n\t\t\"lifted_index\" : 6,\n\t\t\"rh2m\" :
+        11,\n\t\t\"wind10m\" : {\n\t\t\t\"direction\" : \"W\",\n\t\t\t\"speed\" :
+        3\n\t\t},\n\t\t\"temp2m\" : 12,\n\t\t\"prec_type\" : \"none\"\n\t},\n\t{\n\t\t\"timepoint\"
+        : 30,\n\t\t\"cloudcover\" : 1,\n\t\t\"seeing\" : 5,\n\t\t\"transparency\"
+        : 4,\n\t\t\"lifted_index\" : 6,\n\t\t\"rh2m\" : 14,\n\t\t\"wind10m\" : {\n\t\t\t\"direction\"
+        : \"W\",\n\t\t\t\"speed\" : 2\n\t\t},\n\t\t\"temp2m\" : 11,\n\t\t\"prec_type\"
+        : \"none\"\n\t},\n\t{\n\t\t\"timepoint\" : 33,\n\t\t\"cloudcover\" : 7,\n\t\t\"seeing\"
+        : 5,\n\t\t\"transparency\" : 3,\n\t\t\"lifted_index\" : 6,\n\t\t\"rh2m\" :
+        13,\n\t\t\"wind10m\" : {\n\t\t\t\"direction\" : \"W\",\n\t\t\t\"speed\" :
+        2\n\t\t},\n\t\t\"temp2m\" : 11,\n\t\t\"prec_type\" : \"none\"\n\t},\n\t{\n\t\t\"timepoint\"
+        : 36,\n\t\t\"cloudcover\" : 7,\n\t\t\"seeing\" : 5,\n\t\t\"transparency\"
+        : 3,\n\t\t\"lifted_index\" : 10,\n\t\t\"rh2m\" : 13,\n\t\t\"wind10m\" : {\n\t\t\t\"direction\"
+        : \"W\",\n\t\t\t\"speed\" : 2\n\t\t},\n\t\t\"temp2m\" : 11,\n\t\t\"prec_type\"
+        : \"none\"\n\t},\n\t{\n\t\t\"timepoint\" : 39,\n\t\t\"cloudcover\" : 9,\n\t\t\"seeing\"
+        : 2,\n\t\t\"transparency\" : 3,\n\t\t\"lifted_index\" : 6,\n\t\t\"rh2m\" :
+        10,\n\t\t\"wind10m\" : {\n\t\t\t\"direction\" : \"W\",\n\t\t\t\"speed\" :
+        2\n\t\t},\n\t\t\"temp2m\" : 11,\n\t\t\"prec_type\" : \"none\"\n\t},\n\t{\n\t\t\"timepoint\"
+        : 42,\n\t\t\"cloudcover\" : 9,\n\t\t\"seeing\" : 2,\n\t\t\"transparency\"
+        : 2,\n\t\t\"lifted_index\" : 6,\n\t\t\"rh2m\" : 4,\n\t\t\"wind10m\" : {\n\t\t\t\"direction\"
+        : \"W\",\n\t\t\t\"speed\" : 2\n\t\t},\n\t\t\"temp2m\" : 14,\n\t\t\"prec_type\"
+        : \"none\"\n\t},\n\t{\n\t\t\"timepoint\" : 45,\n\t\t\"cloudcover\" : 6,\n\t\t\"seeing\"
+        : 2,\n\t\t\"transparency\" : 2,\n\t\t\"lifted_index\" : 6,\n\t\t\"rh2m\" :
+        3,\n\t\t\"wind10m\" : {\n\t\t\t\"direction\" : \"NW\",\n\t\t\t\"speed\" :
+        3\n\t\t},\n\t\t\"temp2m\" : 17,\n\t\t\"prec_type\" : \"none\"\n\t},\n\t{\n\t\t\"timepoint\"
+        : 48,\n\t\t\"cloudcover\" : 4,\n\t\t\"seeing\" : 2,\n\t\t\"transparency\"
+        : 2,\n\t\t\"lifted_index\" : 6,\n\t\t\"rh2m\" : 6,\n\t\t\"wind10m\" : {\n\t\t\t\"direction\"
+        : \"NW\",\n\t\t\t\"speed\" : 3\n\t\t},\n\t\t\"temp2m\" : 16,\n\t\t\"prec_type\"
+        : \"none\"\n\t},\n\t{\n\t\t\"timepoint\" : 51,\n\t\t\"cloudcover\" : 1,\n\t\t\"seeing\"
+        : 5,\n\t\t\"transparency\" : 3,\n\t\t\"lifted_index\" : 10,\n\t\t\"rh2m\"
+        : 11,\n\t\t\"wind10m\" : {\n\t\t\t\"direction\" : \"W\",\n\t\t\t\"speed\"
+        : 3\n\t\t},\n\t\t\"temp2m\" : 13,\n\t\t\"prec_type\" : \"none\"\n\t},\n\t{\n\t\t\"timepoint\"
+        : 54,\n\t\t\"cloudcover\" : 1,\n\t\t\"seeing\" : 5,\n\t\t\"transparency\"
+        : 3,\n\t\t\"lifted_index\" : 10,\n\t\t\"rh2m\" : 13,\n\t\t\"wind10m\" : {\n\t\t\t\"direction\"
+        : \"W\",\n\t\t\t\"speed\" : 2\n\t\t},\n\t\t\"temp2m\" : 11,\n\t\t\"prec_type\"
+        : \"none\"\n\t},\n\t{\n\t\t\"timepoint\" : 57,\n\t\t\"cloudcover\" : 1,\n\t\t\"seeing\"
+        : 5,\n\t\t\"transparency\" : 3,\n\t\t\"lifted_index\" : 10,\n\t\t\"rh2m\"
+        : 11,\n\t\t\"wind10m\" : {\n\t\t\t\"direction\" : \"S\",\n\t\t\t\"speed\"
+        : 2\n\t\t},\n\t\t\"temp2m\" : 10,\n\t\t\"prec_type\" : \"none\"\n\t},\n\t{\n\t\t\"timepoint\"
+        : 60,\n\t\t\"cloudcover\" : 1,\n\t\t\"seeing\" : 5,\n\t\t\"transparency\"
+        : 3,\n\t\t\"lifted_index\" : 10,\n\t\t\"rh2m\" : 11,\n\t\t\"wind10m\" : {\n\t\t\t\"direction\"
+        : \"S\",\n\t\t\t\"speed\" : 2\n\t\t},\n\t\t\"temp2m\" : 9,\n\t\t\"prec_type\"
+        : \"none\"\n\t},\n\t{\n\t\t\"timepoint\" : 63,\n\t\t\"cloudcover\" : 1,\n\t\t\"seeing\"
+        : 2,\n\t\t\"transparency\" : 3,\n\t\t\"lifted_index\" : 6,\n\t\t\"rh2m\" :
+        8,\n\t\t\"wind10m\" : {\n\t\t\t\"direction\" : \"NW\",\n\t\t\t\"speed\" :
+        1\n\t\t},\n\t\t\"temp2m\" : 11,\n\t\t\"prec_type\" : \"none\"\n\t},\n\t{\n\t\t\"timepoint\"
+        : 66,\n\t\t\"cloudcover\" : 1,\n\t\t\"seeing\" : 2,\n\t\t\"transparency\"
+        : 2,\n\t\t\"lifted_index\" : 2,\n\t\t\"rh2m\" : 4,\n\t\t\"wind10m\" : {\n\t\t\t\"direction\"
+        : \"NW\",\n\t\t\t\"speed\" : 2\n\t\t},\n\t\t\"temp2m\" : 17,\n\t\t\"prec_type\"
+        : \"none\"\n\t},\n\t{\n\t\t\"timepoint\" : 69,\n\t\t\"cloudcover\" : 1,\n\t\t\"seeing\"
+        : 2,\n\t\t\"transparency\" : 2,\n\t\t\"lifted_index\" : 2,\n\t\t\"rh2m\" :
+        3,\n\t\t\"wind10m\" : {\n\t\t\t\"direction\" : \"NW\",\n\t\t\t\"speed\" :
+        3\n\t\t},\n\t\t\"temp2m\" : 21,\n\t\t\"prec_type\" : \"none\"\n\t},\n\t{\n\t\t\"timepoint\"
+        : 72,\n\t\t\"cloudcover\" : 1,\n\t\t\"seeing\" : 2,\n\t\t\"transparency\"
+        : 2,\n\t\t\"lifted_index\" : 2,\n\t\t\"rh2m\" : 5,\n\t\t\"wind10m\" : {\n\t\t\t\"direction\"
+        : \"NW\",\n\t\t\t\"speed\" : 3\n\t\t},\n\t\t\"temp2m\" : 20,\n\t\t\"prec_type\"
+        : \"none\"\n\t}\n\t]\n}\n"
+    headers:
+      Connection:
+      - Keep-Alive
+      Content-Type:
+      - text/html; charset=UTF-8
+      Date:
+      - Sun, 26 Apr 2026 06:06:15 GMT
+      Keep-Alive:
+      - timeout=5, max=100
+      Server:
+      - Apache/2.4.66 (Debian)
+      Vary:
+      - Accept-Encoding
+      content-length:
+      - '5354'
+    status:
+      code: 200
+      message: OK
+version: 1

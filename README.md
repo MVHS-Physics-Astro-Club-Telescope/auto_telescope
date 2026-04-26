@@ -1,129 +1,139 @@
-# Autonomous Tracking and Capturing Telescope
+# auto_telescope
 
-## Overview
+Pi-only autonomous control software for the **MVHS Physics & Astronomy Club 10-inch f/4.48 Truss-Tube Dobsonian** telescope.
 
-This project designs and builds a fully autonomous telescope from individual components, rather than using a prebuilt system. The telescope automatically focuses, moves, and tracks celestial bodies with minimal human input.
+The telescope sits on a rooftop platform at Mountain View High School. The Raspberry Pi
+runs unattended, picks targets, slews, and exposes through an ASI120MC-S camera.
+**Safety is the top concern**: the codebase is structured so any uncertainty refuses to slew.
 
-The system is divided into three major subsystems:
+> Phase 1A scope: sky-conditions aggregation, visibility math, smart catalog,
+> "best time to observe" scheduler, and hard safety interlocks. Hardware/motor
+> control is Phase 1B+ and lives in a separate module.
 
-- **Mechanical** -- Physical structure, mounts, and motion mechanisms
-- **Electrical** -- Motors, sensors, and wiring
-- **Software** -- Control logic, communication, and automation
+---
 
-The software stack is pure Python. The host computer handles high-level decision-making (celestial math, tracking, autofocus) while the Raspberry Pi controls hardware (motors, sensors, GPIO). A shared protocol layer defines the communication contract between the two.
+## What this gives you
 
-## Architecture
+* **Sky conditions**: `auto_telescope.conditions` aggregates 7Timer! ASTRO + NOAA
+  api.weather.gov + Open-Meteo into one pessimistic-consensus hourly forecast,
+  tolerating any one provider being down.
+* **Visibility math**: `auto_telescope.visibility` does pure-local astropy
+  RA/Dec ↔ Alt/Az transforms, sun + moon checks, and contiguous "observation
+  window" computation.
+* **Smart catalog**: `auto_telescope.catalog` ships ~80 hand-curated targets
+  (Tier 1 = beginner-friendly, Tier 2 = challenging, Tier 3 = auto-rejected with
+  reason). Solar-system bodies are resolved live via astropy. Anything not in the
+  curated list falls through to SIMBAD.
+* **Scheduler**: `auto_telescope.scheduler.find_best_windows("M13")` returns the
+  top-N quality-scored observation windows over the next N nights for any target.
+* **Safety interlocks**: `auto_telescope.safety.check_can_slew()` enforces sun
+  avoidance, horizon, and wind limits — fail-CLOSED by default.
 
-The telescope operates using a **Host computer <-> Raspberry Pi** architecture:
+---
 
-- The **Host** performs high-level calculations: celestial coordinate resolution (via astropy/astroquery), tracking adjustments (PID control), and autofocus control.
-- The **Raspberry Pi** interfaces directly with stepper motors and sensors, executing movement commands with safety checks.
-- A **shared** communication layer defines commands, state, and the TCP protocol used to exchange data between Host and Pi.
+## Install
 
-Commands flow **Host -> Pi**. State feedback flows **Pi -> Host**. Both sides use the shared protocol definitions.
-
-```
-┌─────────────────────┐         TCP          ┌──────────────────────┐
-│       Host          │  ──── commands ────>  │     Raspberry Pi     │
-│                     │                       │                      │
-│  - Celestial math   │  <── state reports ── │  - Motor control     │
-│  - Tracking (PID)   │                       │  - GPIO / sensors    │
-│  - Autofocus        │                       │  - Safety manager    │
-│  - CLI interface    │                       │  - Focus controller  │
-└─────────────────────┘                       └──────────────────────┘
-              │                                         │
-              └──────── shared/ protocol layer ─────────┘
-```
-
-## Repository Structure
-
-```
-auto_telescope/
-├── host/                  # Host computer -- high-level control
-│   ├── main.py            # TCP server, CLI entry point
-│   ├── config/            # Constants, UI params
-│   ├── control/           # Tracking, PID, autofocus, celestial resolution
-│   ├── comms/             # TCP sender/receiver to Pi
-│   ├── state/             # Telescope state store, session logs
-│   ├── ui/                # CLI interface, display formatting
-│   ├── simulation/        # Testing without hardware
-│   └── utils/             # Logger, math, threading helpers
-├── pi/                    # Raspberry Pi -- hardware control
-│   ├── main.py            # Hardware init, 50Hz dispatch loop
-│   ├── config/            # Constants, GPIO pin mappings
-│   ├── control/           # Motor controller, focus, safety manager
-│   ├── hardware/          # GPIO setup, motor driver, sensors
-│   ├── comms/             # TCP client, message parser
-│   ├── state/             # Position tracking, error state
-│   └── utils/             # Logger, timer, debug
-├── shared/                # Communication contract (Host <-> Pi)
-│   ├── commands/          # Move, Focus, Stop command definitions
-│   ├── enums/             # CommandType, StatusCode
-│   ├── errors/            # ErrorCode definitions
-│   ├── protocols/         # TCP protocol (4-byte length-prefixed JSON), validator
-│   └── state/             # TelescopeState, CameraState
-├── tests/                 # Test suite (328 tests)
-│   ├── host/              # Host unit tests (148)
-│   ├── pi/                # Pi unit tests (86)
-│   ├── shared/            # Shared unit tests (69)
-│   └── integration/       # End-to-end Host<->Pi tests (25)
-├── docs/                  # Architecture docs, progress log
-├── .github/workflows/     # CI pipeline
-└── requirements.txt       # astropy, astroquery, pytest
-```
-
-## Setup
-
-### Prerequisites
-
-- Python 3.9+
-- Raspberry Pi (for hardware deployment; mock hardware available for development)
-
-### Installation
+Requires Python 3.11+.
 
 ```bash
 git clone https://github.com/MVHS-Physics-Astro-Club-Telescope/auto_telescope.git
 cd auto_telescope
-pip install -r requirements.txt
+python3 -m venv .venv && source .venv/bin/activate
+pip install -e ".[dev]"
 ```
 
-### Running
-
-**Host (with simulation mode -- no Pi needed):**
-```bash
-export PYTHONPATH=$PWD:$PYTHONPATH
-python3 -m host.main --simulate
-```
-
-**Host (connecting to a real Pi):**
-```bash
-python3 -m host.main --host 0.0.0.0 --port 5050
-```
-
-**Pi (with mock hardware -- no GPIO needed):**
-```bash
-python3 pi/main.py --mock --host <host-ip>
-```
-
-**Pi (with real hardware):**
-```bash
-python3 pi/main.py --host <host-ip>
-```
-
-### Running Tests
+On the production Pi, install without `[dev]`:
 
 ```bash
-export PYTHONPATH=$PWD:$PYTHONPATH
-pytest tests/ -v
+pip install -e .
 ```
 
-## Tech Stack
+---
 
-| Component | Technology |
-|-----------|-----------|
-| Language | Python 3.9+ |
-| Celestial math | astropy, astroquery (SIMBAD, JPL Horizons) |
-| Hardware I/O | RPi.GPIO (on Pi only) |
-| Communication | TCP sockets (4-byte length-prefixed JSON) |
-| Testing | pytest (328 tests) |
-| CI | GitHub Actions (Python 3.9, 3.10) |
+## Run a smoke test
+
+```python
+from auto_telescope.scheduler.best_time import find_best_windows
+from auto_telescope.config.site import MVHS_SITE
+
+windows = find_best_windows("M13", site=MVHS_SITE, days=7, limit=5)
+for w in windows:
+    print(f"{w.window.start_utc:%Y-%m-%d %H:%M UTC}  "
+          f"dur={w.window.duration_minutes:.0f}min  "
+          f"peak_alt={w.window.peak_altitude_deg:.1f}°  score={w.score:.2f}")
+```
+
+This hits the real 7Timer/NOAA/Open-Meteo APIs. Expect results in ~3 seconds.
+
+---
+
+## Test
+
+```bash
+pytest                                            # full suite
+pytest -m safety                                  # adversarial safety only
+pytest --cov=auto_telescope --cov-fail-under=85   # coverage gate
+ruff check src tests                              # lint
+ruff format --check src tests                     # format
+mypy src/                                         # types
+```
+
+The test suite is layered:
+
+1. **Unit** — pure logic, ~70 tests, fast.
+2. **Property** — Hypothesis invariants (coord round-trip, slew symmetry).
+3. **Safety** — adversarial: 2K random pointings, sun pointings every hour,
+   DST/antimeridian/polar edges. ALL must pass to ship.
+4. **Integration** — recorded against real APIs with vcrpy. Cassettes in
+   `tests/integration/cassettes/`.
+5. **Simulator** — end-to-end pipeline with stub forecasts.
+
+---
+
+## Configuration
+
+All knobs read from environment variables prefixed `AUTO_TELESCOPE_`. See
+`src/auto_telescope/config/settings.py`. Key vars:
+
+| Variable | Default | What |
+|----------|---------|------|
+| `AUTO_TELESCOPE_LATITUDE` | 37.366 | Site latitude (deg N) |
+| `AUTO_TELESCOPE_LONGITUDE` | -122.077 | Site longitude (deg E) |
+| `AUTO_TELESCOPE_ELEVATION_M` | 30 | Site elevation (m) |
+| `AUTO_TELESCOPE_SUN_AVOIDANCE_DEG` | 30 | Min angular separation from sun |
+| `AUTO_TELESCOPE_MIN_ALTITUDE_DEG` | 20 | Min target altitude (horizon safety) |
+| `AUTO_TELESCOPE_MAX_WIND_SPEED_MPS` | 15 | Refuse to slew above this wind speed |
+
+---
+
+## Documentation
+
+* `docs/architecture.md` — module boundaries + data flow.
+* `docs/safety_guarantees.md` — formal list of guarantees, each linked to its proving test.
+* `docs/auto_telescope_design_v3.md` — original full system design (Phase 1+2).
+* `runbooks/api_outages.md` — what to do when an API goes down.
+
+---
+
+## Phase 1A acceptance criteria
+
+* [x] Repo reorganized to single Pi-only `src/auto_telescope/` layout
+* [x] Real API integrations: 7Timer!, NOAA, Open-Meteo, SIMBAD
+* [x] ~80-target curated catalog with tiering + best-month metadata
+* [x] Visibility windows with astropy
+* [x] `find_best_windows()` end-to-end working against real APIs
+* [x] Adversarial safety tests (sun, horizon, DST, antimeridian, polar)
+* [x] >85 % coverage (current: 89 %)
+* [x] CI matrix Python 3.11 + 3.12
+* [x] Pre-commit hooks (ruff lint + format)
+* [x] Runbooks for API-down scenarios
+
+---
+
+## Links
+
+* Linear: WOR-21
+* GitHub issue: [#17](https://github.com/MVHS-Physics-Astro-Club-Telescope/auto_telescope/issues/17)
+* Design doc: `docs/auto_telescope_design_v3.md`
+
+License: MIT.
